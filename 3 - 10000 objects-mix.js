@@ -1,7 +1,14 @@
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
 const https = require('https');
+const env = JSON.parse(fs.readFileSync('./env.json'));
+
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"
+
+const host = env.host;
+const job_path = env.job_path
+const submit_job_path = env.submit_job_path;
+const key = env.key;
 
 function getRoot() {
   const content = [];
@@ -91,13 +98,13 @@ fs.writeFile('data-3-10000-mix.json', JSON.stringify(data), function (err) {
 });
 
 var post_options_send = {
-  host: 'localhost',
-  path: '/api/v3.1/projects/28/tosca/import/test-event',
+  host: host,
+  path: submit_job_path,
   port: '443',
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
-    'Authorization': 'Bearer 61e2a3a0-a7b0-41b7-ac73-4c90afdd8dc8'
+    'Authorization': key
   }
 };
 
@@ -118,13 +125,13 @@ req.end();
 
 function checkAndGetResult(jobId) {
   var post_options_check = {
-    host: 'localhost',
-    path: '/api/v3/projects/queue-processing/' + jobId,
+    host: host,
+    path: job_path + jobId,
     port: '443',
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer 61e2a3a0-a7b0-41b7-ac73-4c90afdd8dc8'
+      'Authorization': key
     }
   };
   let interval = setInterval(() => {
